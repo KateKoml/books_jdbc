@@ -2,8 +2,8 @@ package org.example.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ConnectionSetting;
-import org.example.model.Book;
-import org.example.repository.BookRepository;
+import org.example.model.Author;
+import org.example.repository.AuthorRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,41 +15,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class BookRepositoryImpl implements BookRepository {
+public class AuthorRepositoryImpl implements AuthorRepository {
     private static final String ID = "id";
-    private static final String NAME = "name";
-    private static final String YEAR = "year";
-    private static final String AUTHOR_ID = "author_id";
+    private static final String FULL_NAME = "full_name";
+    private static final String YEAR_OF_BIRTH = "year_of_birth";
 
     private final ConnectionSetting connectionSetting;
 
-    public BookRepositoryImpl(ConnectionSetting connectionSetting) {
+    public AuthorRepositoryImpl(ConnectionSetting connectionSetting) {
         this.connectionSetting = connectionSetting;
     }
 
-    public List<Book> findAll() {
-        final String findAllQuery = "SELECT * FROM books ORDER BY id DESC";
-
-        List<Book> books = new ArrayList<>();
-
-        connectionSetting.registerDriver();
-        try (Connection connection = connectionSetting.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(findAllQuery)
-        ) {
-            while (rs.next()) {
-                books.add(parseResultSet(rs));
-            }
-        } catch (SQLException e) {
-            log.info(e.getMessage());
-            throw new RuntimeException("SQL Issues!");
-        }
-
-        return books;
-    }
-
-    public Book findById(Long id) {
-        final String findByIdQuery = "SELECT * FROM books WHERE id = ?";
+    @Override
+    public Author findById(Long id) {
+        final String findByIdQuery = "SELECT * FROM authors WHERE id = ?";
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
@@ -70,8 +49,8 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public Optional<Book> findOptionalById(Long id) {
-        final String findByIdQuery = "SELECT * FROM books WHERE id = ?";
+    public Optional<Author> findOptionalById(Long id) {
+        final String findByIdQuery = "SELECT * FROM authors WHERE id = ?";
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
@@ -92,23 +71,44 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public Book create(Book book) {
-        final String createQuery = "INSERT INTO books (name, year, author_id) VALUES (?, ?, ?)";
+    public List<Author> findAll() {
+        final String findAllQuery = "SELECT * FROM authors ORDER BY id DESC";
+
+        List<Author> authors = new ArrayList<>();
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(findAllQuery)
+        ) {
+            while (rs.next()) {
+                authors.add(parseResultSet(rs));
+            }
+        } catch (SQLException e) {
+            log.info(e.getMessage());
+            throw new RuntimeException("SQL Issues!");
+        }
+
+        return authors;
+    }
+
+    @Override
+    public Author create(Author author) {
+        final String createQuery = "INSERT INTO authors (full_name, year_of_birth) VALUES (?, ?)";
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
              PreparedStatement statement = connection.prepareStatement(createQuery, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, book.getName());
-            statement.setInt(2, book.getYear());
-            statement.setLong(3, book.getAuthorId());
+            statement.setString(1, author.getFullName());
+            statement.setInt(2, author.getYearOfBirth());
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        book.setId(generatedKeys.getLong(1));
+                        author.setId(generatedKeys.getLong(1));
                     } else {
-                        throw new SQLException("Creating book failed, no ID obtained.");
+                        throw new SQLException("Creating author failed, no ID obtained.");
                     }
                 }
             }
@@ -118,24 +118,23 @@ public class BookRepositoryImpl implements BookRepository {
             throw new RuntimeException(e);
         }
 
-        return book;
+        return author;
     }
 
     @Override
-    public Book update(Book book) {
-        final String updateQuery = "UPDATE books SET name = ?, year = ?, author_id = ? WHERE id = ?";
+    public Author update(Author author) {
+        final String updateQuery = "UPDATE authors SET full_name = ?, year_of_birth = ? WHERE id = ?";
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
              PreparedStatement statement = connection.prepareStatement(updateQuery)) {
-            statement.setString(1, book.getName());
-            statement.setInt(2, book.getYear());
-            statement.setLong(3, book.getAuthorId());
-            statement.setLong(4, book.getId());
+            statement.setString(1, author.getFullName());
+            statement.setInt(2, author.getYearOfBirth());
+            statement.setLong(3, author.getId());
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new RuntimeException("Updating book failed, no rows affected.");
+                throw new RuntimeException("Updating author failed, no rows affected.");
             }
 
         } catch (SQLException e) {
@@ -143,23 +142,19 @@ public class BookRepositoryImpl implements BookRepository {
             throw new RuntimeException(e);
         }
 
-        return book;
+        return author;
     }
 
     @Override
     public boolean delete(Long id) {
-        final String deleteQuery = "DELETE FROM books WHERE id = ?";
-        final String linkQuery = "DELETE FROM l_books_genres WHERE book_id = ?";
+        final String deleteQuery = "DELETE FROM authors WHERE id = ?";
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
-             PreparedStatement beforeStatement = connection.prepareStatement(linkQuery);
-             PreparedStatement mainStatement = connection.prepareStatement(deleteQuery)
+             PreparedStatement statement = connection.prepareStatement(deleteQuery)
         ) {
-            beforeStatement.setLong(1, id);
-            beforeStatement.executeUpdate();
-            mainStatement.setLong(1, id);
-            mainStatement.executeUpdate();
+            statement.setLong(1, id);
+            statement.executeUpdate();
 
             return true;
 
@@ -169,20 +164,19 @@ public class BookRepositoryImpl implements BookRepository {
         }
     }
 
-    private Book parseResultSet(ResultSet rs) {
-        Book book;
+    private Author parseResultSet(ResultSet rs) {
+        Author author;
 
         try {
-            book = new Book();
-            book.setId(rs.getLong(ID));
-            book.setName(rs.getString(NAME));
-            book.setYear(rs.getInt(YEAR));
-            book.setAuthorId(rs.getLong(AUTHOR_ID));
+            author = new Author();
+            author.setId(rs.getLong(ID));
+            author.setFullName(rs.getString(FULL_NAME));
+            author.setYearOfBirth(rs.getInt(YEAR_OF_BIRTH));
         } catch (SQLException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);
         }
 
-        return book;
+        return author;
     }
 }

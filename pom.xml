@@ -15,7 +15,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.26</lombok.version>
-        <postgresql.version>42.5.4</postgresql.version>
+        <postgresql.version>42.6.0</postgresql.version>
         <commons.lang.version>3.12.0</commons.lang.version>
         <commons.io.version>2.11.0</commons.io.version>
         <junit.version>4.13.2</junit.version>
@@ -23,6 +23,7 @@
         <HikariCP.version>5.0.1</HikariCP.version>
         <slf4j-api.version>2.0.6</slf4j-api.version>
         <logback-classic.version>1.4.7</logback-classic.version>
+        <jackson-databind.version>2.15.1</jackson-databind.version>
         <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
         <maven.compile.plugin.version>3.8.1</maven.compile.plugin.version>
     </properties>
@@ -86,6 +87,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback-classic.version}</version>
+        </dependency>
+
+        <!-- jackson-databind  -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
         </dependency>
     </dependencies>
 

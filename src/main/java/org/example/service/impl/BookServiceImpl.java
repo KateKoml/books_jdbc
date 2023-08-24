@@ -43,4 +43,9 @@ public class BookServiceImpl implements BookService {
     public boolean delete(Long id) {
         return bookRepository.delete(id);
     }
+
+    @Override
+    public void setBookGenre(Long bookId, Integer genreId) {
+        bookRepository.setBookGenre(bookId, genreId);
+    }
 }

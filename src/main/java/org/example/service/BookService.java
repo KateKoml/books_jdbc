@@ -17,4 +17,6 @@ public interface BookService {
     Book update(Book book);
 
     boolean delete(Long id);
+
+    void setBookGenre(Long bookId, Integer genreId);
 }

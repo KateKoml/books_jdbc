@@ -169,6 +169,43 @@ public class BookRepositoryImpl implements BookRepository {
         }
     }
 
+    @Override
+    public void setBookGenre(Long bookId, Integer genreId) {
+        final String query = "INSERT INTO l_books_genres (book_id, genre_id) VALUES (?, ?)";
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            if (!isBookGenreExists(bookId, genreId)) {
+                statement.setLong(1, bookId);
+                statement.setInt(2, genreId);
+                statement.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            log.info(e.getMessage());
+            throw new RuntimeException("SQL Issues!");
+        }
+    }
+
+    private boolean isBookGenreExists(Long bookId, Integer genreId) {
+        final String query = "SELECT * FROM l_books_genres WHERE book_id = ? AND genre_id = ?";
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, bookId);
+            statement.setInt(2, genreId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            log.info(e.getMessage());
+            return false;
+        }
+    }
+
     private Book parseResultSet(ResultSet rs) {
         Book book;
 

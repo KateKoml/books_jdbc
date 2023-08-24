@@ -3,11 +3,14 @@ package org.example.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
+
 public class Book {
     private Long id;
     private String name;
     private Integer year;
     private Long authorId;
+    private List<Genre> genres;
 
     public Book(){
     }
@@ -49,6 +52,14 @@ public class Book {
 
     public void setAuthorId(Long authorId) {
         this.authorId = authorId;
+    }
+
+    public List<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
     }
 
     @Override

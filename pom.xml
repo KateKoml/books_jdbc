@@ -19,6 +19,7 @@
         <commons.lang.version>3.12.0</commons.lang.version>
         <commons.io.version>2.11.0</commons.io.version>
         <junit.version>4.13.2</junit.version>
+        <testcontainers.version>1.18.0</testcontainers.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <HikariCP.version>5.0.1</HikariCP.version>
         <slf4j-api.version>2.0.6</slf4j-api.version>
@@ -54,6 +55,7 @@
             <version>${commons.io.version}</version>
         </dependency>
 
+        <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -61,6 +63,19 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>

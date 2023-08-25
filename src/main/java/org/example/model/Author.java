@@ -14,6 +14,11 @@ public class Author {
     public Author() {
     }
 
+    public Author(String fullName, Integer yearOfBirth) {
+        this.fullName = fullName;
+        this.yearOfBirth = yearOfBirth;
+    }
+
     public Author(Long id, String fullName, Integer yearOfBirth) {
         this.id = id;
         this.fullName = fullName;

@@ -3,6 +3,7 @@ package org.example.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ConnectionSetting;
 import org.example.model.Book;
+import org.example.model.Genre;
 import org.example.repository.BookRepository;
 
 import java.sql.Connection;
@@ -197,13 +198,41 @@ public class BookRepositoryImpl implements BookRepository {
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, bookId);
             statement.setInt(2, genreId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
+
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next();
             }
         } catch (SQLException e) {
             log.info(e.getMessage());
             return false;
         }
+    }
+
+    public List<Genre> getGenresOfBook(Long bookId) {
+        final String findQuery = "SELECT g.id, g.type FROM genres g " +
+                "JOIN l_books_genres bg ON bg.genre_id = g.id " +
+                "JOIN books b ON bg.book_id = b.id " +
+                "WHERE b.id = ?";
+        List<Genre> genres = new ArrayList<>();
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             PreparedStatement statement = connection.prepareStatement(findQuery)) {
+            statement.setLong(1, bookId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Genre genre = new Genre();
+                    genre.setId(rs.getInt("id"));
+                    genre.setType(rs.getString("type"));
+                    genres.add(genre);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new RuntimeException("SQL Issues!");
+        }
+        return genres;
     }
 
     private Book parseResultSet(ResultSet rs) {
@@ -215,6 +244,8 @@ public class BookRepositoryImpl implements BookRepository {
             book.setName(rs.getString(NAME));
             book.setYear(rs.getInt(YEAR));
             book.setAuthorId(rs.getLong(AUTHOR_ID));
+            List<Genre> genres = getGenresOfBook(book.getId());
+            book.setGenres(genres);
         } catch (SQLException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);

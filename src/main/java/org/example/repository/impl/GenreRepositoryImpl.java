@@ -2,6 +2,7 @@ package org.example.repository.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ConnectionSetting;
+import org.example.model.Book;
 import org.example.model.Genre;
 import org.example.repository.GenreRepository;
 
@@ -165,6 +166,35 @@ public class GenreRepositoryImpl implements GenreRepository {
         }
     }
 
+    public List<Book> getBooksOfGenre(Integer genreId) {
+        final String findQuery = "SELECT b.id, b.name, b.year, b.author_id FROM books b " +
+                "JOIN l_books_genres bg ON b.id = bg.book_id " +
+                "JOIN genres g ON bg.genre_id = g.id " +
+                "WHERE g.id = ?";
+        List<Book> books = new ArrayList<>();
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             PreparedStatement statement = connection.prepareStatement(findQuery)) {
+            statement.setLong(1, genreId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getLong("id"));
+                    book.setName(rs.getString("name"));
+                    book.setYear(rs.getInt("year"));
+                    book.setAuthorId(rs.getLong("author_id"));
+                    books.add(book);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new RuntimeException("SQL Issues!");
+        }
+        return books;
+    }
+
     private Genre parseResultSet(ResultSet rs) {
         Genre genre;
 
@@ -172,6 +202,8 @@ public class GenreRepositoryImpl implements GenreRepository {
             genre = new Genre();
             genre.setId(rs.getInt(ID));
             genre.setType(rs.getString(TYPE));
+            List<Book> books = getBooksOfGenre(genre.getId());
+            genre.setBooks(books);
         } catch (SQLException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);

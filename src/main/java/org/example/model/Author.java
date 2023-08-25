@@ -3,10 +3,13 @@ package org.example.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
+
 public class Author {
     private Long id;
     private String fullName;
     private Integer yearOfBirth;
+    private List<Book> books;
 
     public Author(){
     }
@@ -39,6 +42,14 @@ public class Author {
 
     public void setYearOfBirth(Integer yearOfBirth) {
         this.yearOfBirth = yearOfBirth;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     @Override

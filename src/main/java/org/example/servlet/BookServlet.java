@@ -94,6 +94,7 @@ public class BookServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 bookService.setBookGenre(bookId, genreId);
+                response.getWriter().println("Genre was successfully added to book.");
                 response.setStatus(HttpServletResponse.SC_OK);
             }
         }

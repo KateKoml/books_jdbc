@@ -3,6 +3,7 @@ package org.example.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ConnectionSetting;
 import org.example.model.Author;
+import org.example.model.Book;
 import org.example.repository.AuthorRepository;
 
 import java.sql.Connection;
@@ -164,6 +165,33 @@ public class AuthorRepositoryImpl implements AuthorRepository {
         }
     }
 
+    public List<Book> getAuthorsBooks(Long authorId) {
+        final String findQuery = "SELECT b.id, b.name, b.year FROM books b " +
+                "JOIN authors a ON b.author_id = a.id " +
+                "WHERE a.id = ?";
+        List<Book> books = new ArrayList<>();
+
+        connectionSetting.registerDriver();
+        try (Connection connection = connectionSetting.getConnection();
+             PreparedStatement statement = connection.prepareStatement(findQuery)) {
+            statement.setLong(1, authorId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setId(rs.getLong("id"));
+                    book.setName(rs.getString("name"));
+                    book.setYear(rs.getInt("year"));
+                    books.add(book);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            throw new RuntimeException("SQL Issues!");
+        }
+        return books;
+    }
+
     private Author parseResultSet(ResultSet rs) {
         Author author;
 
@@ -172,6 +200,8 @@ public class AuthorRepositoryImpl implements AuthorRepository {
             author.setId(rs.getLong(ID));
             author.setFullName(rs.getString(FULL_NAME));
             author.setYearOfBirth(rs.getInt(YEAR_OF_BIRTH));
+            List<Book> books = getAuthorsBooks(author.getId());
+            author.setBooks(books);
         } catch (SQLException e) {
             log.info(e.getMessage());
             throw new RuntimeException(e);

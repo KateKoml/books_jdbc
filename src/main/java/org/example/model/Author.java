@@ -11,7 +11,7 @@ public class Author {
     private Integer yearOfBirth;
     private List<Book> books;
 
-    public Author(){
+    public Author() {
     }
 
     public Author(Long id, String fullName, Integer yearOfBirth) {

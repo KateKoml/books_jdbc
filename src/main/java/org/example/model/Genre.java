@@ -13,6 +13,10 @@ public class Genre {
     public Genre() {
     }
 
+    public Genre(String type) {
+        this.type = type;
+    }
+
     public Genre(Integer id, String type) {
         this.id = id;
         this.type = type;

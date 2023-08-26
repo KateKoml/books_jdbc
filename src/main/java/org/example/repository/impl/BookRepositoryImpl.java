@@ -171,8 +171,9 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public void setBookGenre(Long bookId, Integer genreId) {
+    public boolean setBookGenre(Long bookId, Integer genreId) {
         final String query = "INSERT INTO l_books_genres (book_id, genre_id) VALUES (?, ?)";
+        boolean result = false;
 
         connectionSetting.registerDriver();
         try (Connection connection = connectionSetting.getConnection();
@@ -182,12 +183,15 @@ public class BookRepositoryImpl implements BookRepository {
                 statement.setLong(1, bookId);
                 statement.setInt(2, genreId);
                 statement.executeUpdate();
+                result = true;
             }
 
         } catch (SQLException e) {
+            result = false;
             log.info(e.getMessage());
             throw new RuntimeException("SQL Issues!");
         }
+        return result;
     }
 
     private boolean isBookGenreExists(Long bookId, Integer genreId) {

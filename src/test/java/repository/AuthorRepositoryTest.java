@@ -1,3 +1,5 @@
+package repository;
+
 import org.example.config.ConnectionSetting;
 import org.example.model.Author;
 import org.example.repository.AuthorRepository;
@@ -48,14 +50,13 @@ class AuthorRepositoryTest {
         try (Connection connection = DriverManager.getConnection(postgres.getJdbcUrl(), "postgres", "password")) {
             Statement statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM authors");
-            // выполните DELETE-запросы для всех таблиц базы данных
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    void createAuthor() {
+    void createAuthorTest() {
         authorRepository.create(new Author("Charlotte Bronte", 1816));
         authorRepository.create(new Author("Jane Austen", 1775));
 
@@ -65,40 +66,46 @@ class AuthorRepositoryTest {
     }
 
     @Test
-    void findByIdAuthor() {
+    void findByIdAuthorTest() {
         Author newAuthor = authorRepository.create(new Author("Charlotte Bronte", 1816));
+
         Author author = authorRepository.findById(newAuthor.getId());
 
+        Assertions.assertNotNull(author);
         Assertions.assertEquals(newAuthor.getFullName(), author.getFullName());
     }
 
     @Test
-    void findOptionalByIdAuthor() {
+    void findOptionalByIdAuthorTest() {
         Author newAuthor = authorRepository.create(new Author("Charlotte Bronte", 1816));
+
         Optional<Author> author = authorRepository.findOptionalById(newAuthor.getId());
 
+        Assertions.assertNotNull(author);
         Assertions.assertTrue(author.isPresent());
     }
 
     @Test
-    void updateAuthor() {
-        Author author = authorRepository.create(new Author("Joanne Rowling", 1965));;
+    void updateAuthorTest() {
+        Author author = authorRepository.create(new Author("Joanne Rowling", 1965));
+
         author = authorRepository.update(new Author(author.getId(), "Joanne Rowling", 1970));
 
         Assertions.assertEquals(1970, author.getYearOfBirth());
     }
 
     @Test
-    void findAllAuthor() {
+    void findAllAuthorTest() {
         authorRepository.create(new Author("Charlotte Bronte", 1816));
         authorRepository.create(new Author("Jane Austen", 1775));
+
         List<Author> authors = authorRepository.findAll();
 
         Assertions.assertEquals(2, authors.size());
     }
 
     @Test
-    void deleteAuthor() {
+    void deleteAuthorTest() {
         Author author1 = authorRepository.create(new Author("Charlotte Bronte", 1816));
         Author author2 = authorRepository.create(new Author("Jane Austen", 1775));
 
@@ -107,7 +114,5 @@ class AuthorRepositoryTest {
 
         Assertions.assertEquals(1, authors.size());
         Assertions.assertTrue(deleted);
-
     }
-
 }

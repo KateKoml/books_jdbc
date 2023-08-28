@@ -19,7 +19,9 @@
         <commons.lang.version>3.12.0</commons.lang.version>
         <commons.io.version>2.11.0</commons.io.version>
         <junit.version>4.13.2</junit.version>
+        <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <testcontainers.version>1.18.0</testcontainers.version>
+        <mockito.version>5.4.0</mockito.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <HikariCP.version>5.0.1</HikariCP.version>
         <slf4j-api.version>2.0.6</slf4j-api.version>
@@ -66,7 +68,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -76,6 +78,22 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- Servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>

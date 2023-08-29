@@ -1,5 +1,7 @@
 package org.example.servlet;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.config.ConnectionSetting;
 import org.example.model.Author;
@@ -29,8 +31,13 @@ public class AuthorServlet extends HttpServlet {
         objectMapper = new ObjectMapper();
     }
 
+    public void setAuthorService(AuthorServiceImpl authorService) {
+        this.authorService = authorService;
+    }
+
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {
@@ -43,6 +50,7 @@ public class AuthorServlet extends HttpServlet {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 objectMapper.writeValue(response.getWriter(), author);
+                response.setStatus(HttpServletResponse.SC_OK);
             }
 
         } else {
@@ -50,12 +58,12 @@ public class AuthorServlet extends HttpServlet {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             objectMapper.writeValue(response.getWriter(), authors);
-
+            response.setStatus(HttpServletResponse.SC_OK);
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.equals("/")) {
@@ -68,23 +76,33 @@ public class AuthorServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            Author updatedAuthor = objectMapper.readValue(request.getInputStream(), Author.class);
+            try {
+                Author updatedAuthor = objectMapper.readValue(request.getInputStream(), Author.class);
 
-            if (updatedAuthor == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            } else {
-                objectMapper.writeValue(response.getWriter(), authorService.update(updatedAuthor));
+                if (updatedAuthor == null) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Request body is empty");
+                    return;
+                }
+
+                Author updated = authorService.update(updatedAuthor);
+                objectMapper.writeValue(response.getWriter(), updated);
                 response.setStatus(HttpServletResponse.SC_OK);
+            } catch (JsonParseException | JsonMappingException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request body");
+            } catch (Exception e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
             }
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {

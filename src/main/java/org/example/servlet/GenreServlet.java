@@ -6,6 +6,7 @@ import org.example.model.Genre;
 import org.example.repository.GenreRepository;
 import org.example.repository.impl.GenreRepositoryImpl;
 import org.example.service.GenreService;
+import org.example.service.impl.BookServiceImpl;
 import org.example.service.impl.GenreServiceImpl;
 
 import javax.servlet.ServletException;
@@ -29,9 +30,12 @@ public class GenreServlet extends HttpServlet {
         objectMapper = new ObjectMapper();
     }
 
+    public void setGenreService(GenreServiceImpl genreService) {
+        this.genreService = genreService;
+    }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {
@@ -85,7 +89,7 @@ public class GenreServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {

@@ -38,9 +38,12 @@ public class BookServlet extends HttpServlet {
         objectMapper = new ObjectMapper();
     }
 
+    public void setBookService(BookServiceImpl bookService) {
+        this.bookService = bookService;
+    }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {
@@ -112,7 +115,7 @@ public class BookServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("id");
 
         if (id != null) {
